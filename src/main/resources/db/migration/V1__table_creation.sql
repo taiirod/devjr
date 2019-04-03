@@ -11,9 +11,10 @@ create table devjr.product
 
 create table devjr.order_item
 (
-  sku varchar(255) primary key,
+  sku varchar(255),
   quantity integer,
-  price decimal
+  price decimal,
+  primary key (sku, quantity, price)
 );
 
 create table devjr.order
