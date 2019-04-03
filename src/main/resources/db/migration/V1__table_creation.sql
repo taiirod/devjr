@@ -23,3 +23,8 @@ create table devjr.order
   order_items varchar(255),
   foreign key (order_items) references devjr.order_item (sku)
 );
+
+/*load data infile 'C:/Users/Tainan Rodrigues/Documents/PROJETOS/devjr/product.csv'
+  INTO TABLE devjr.product
+  fields terminated by ';'
+  lines terminated by '/n' (sku, product_name, quantity_available, industry_price, discount);*/
