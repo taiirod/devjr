@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "order")
+@Table(name = "\"order\"")
 public class Order {
 	
 	@Id
@@ -20,9 +20,11 @@ public class Order {
 	private Date orderDate;
 	
 	@OneToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "order_item", joinColumns = @JoinColumn(name = "id_order")
-			, inverseJoinColumns = @JoinColumn(name = "sku_item"))
+	@JoinColumn(name = "sku")
 	private List<OrderItem> orderItems;
+
+
+	//, joinColumns = @JoinColumn(name = "sku")
 
 	public int getId() {
 		return id;

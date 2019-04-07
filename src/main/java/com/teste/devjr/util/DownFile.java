@@ -3,13 +3,20 @@ package com.teste.devjr.util;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 
-public class FTPUtil {
+@Component
+public class DownFile {
+
+
+	private static final Logger log = LoggerFactory.getLogger(DownFile.class);
 	
-	@Scheduled(fixedRate = 1000)
+	@Scheduled(fixedRate = 10000)
 	public void download (){
 		String server = "3.86.89.252";
 		int port = 21;
@@ -31,7 +38,7 @@ public class FTPUtil {
 			String remoteDirPath = "pending";
 			String saveDirPath = "";
 			
-			FTPUtil.downloadDirectory(ftpClient, remoteDirPath, "", saveDirPath);
+			DownFile.downloadDirectory(ftpClient, remoteDirPath, "", saveDirPath);
 			
 			// log out and disconnect from the server
 			ftpClient.logout();
@@ -118,9 +125,9 @@ public class FTPUtil {
 					boolean success = downloadSingleFile(ftpClient, filePath,
 							newDirPath);
 					if (success) {
-						System.out.println("DOWNLOADED the file: " + filePath);
+						log.info("DOWNLOADED the file: " + filePath);
 					} else {
-						System.out.println("COULD NOT download the file: "
+						log.info("COULD NOT download the file: "
 								+ filePath);
 					}
 				}
