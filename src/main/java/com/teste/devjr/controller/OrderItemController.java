@@ -16,12 +16,12 @@ public class OrderItemController {
 
 
     @GetMapping
-    private List<OrderItem> all () {
+    private List<OrderItem> all() {
         return orderItemRepository.findAll();
     }
 
     @PostMapping
-    private OrderItem add (@RequestBody OrderItem orderItem) {
+    private OrderItem add(@RequestBody OrderItem orderItem) {
         return orderItemRepository.save(orderItem);
     }
 

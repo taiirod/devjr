@@ -17,17 +17,17 @@ public class OrderController {
 
 
     @GetMapping
-    private List<Order> all () {
+    private List<Order> all() {
         return orderRepository.findAll();
     }
 
     @GetMapping("{id}")
-    private Optional<Order> byId (@PathVariable int id) {
+    private Optional<Order> byId(@PathVariable int id) {
         return orderRepository.findById(id);
     }
 
     @PostMapping
-    private Order add (@RequestBody Order order) {
+    private Order add(@RequestBody Order order) {
         return orderRepository.save(order);
     }
 
