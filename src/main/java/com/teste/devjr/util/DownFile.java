@@ -117,9 +117,9 @@ public class DownFile {
                     File newDir = new File(newDirPath);
                     boolean created = newDir.mkdirs();
                     if (created) {
-                        System.out.println("CREATED the directory: " + newDirPath);
+                        log.info("CREATED the directory: " + newDirPath);
                     } else {
-                        System.out.println("COULD NOT create the directory: " + newDirPath);
+						log.info("COULD NOT create the directory: " + newDirPath);
                     }
 
                     // download the sub directory
