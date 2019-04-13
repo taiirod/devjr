@@ -18,6 +18,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PrePersist;
 import javax.persistence.Query;
 import java.io.*;
 import java.math.BigDecimal;
@@ -50,6 +51,7 @@ public class ProcFile {
 
 
     @Scheduled(fixedRate = 30000)
+    @PrePersist
     public void process() {
 
         File file = new File("pending");
@@ -109,7 +111,7 @@ public class ProcFile {
             String fileName = f.getfileName();
             String regex = "(\\d{14})";
             String[] orderDate = fileName.split(regex);
-            System.out.println(orderDate + " " + i++);
+            System.out.println(orderDate.toString() + " " + i++);
 
             if (f.getStatus().equals("PENDENTE")) {
                 for (Product p : products) {
@@ -123,15 +125,21 @@ public class ProcFile {
 
                             Order order = new Order();
                             order.setOrderDate(now);
-                            orderRepository.save(order);
+                            orderRepository.saveAndFlush(order);
 
+
+                            while (fileName.equals()) {
+
+                            }
 
                             OrderItem orderItem = new OrderItem();
                             orderItem.setId_order(order.getId());
                             orderItem.setSku(f.getSku());
                             orderItem.setQuantity(BigDecimal.valueOf(f.getQt()));
-                            BigDecimal price = p.getIndustryPrice().multiply(p.getDiscount());
-                            orderItem.setPrice(p.getIndustryPrice().subtract(price.divide(new BigDecimal("100"))));
+                            BigDecimal priceCalc = p.getIndustryPrice().multiply(p.getDiscount());
+                            BigDecimal price = p.getIndustryPrice().subtract(priceCalc.divide(new BigDecimal("100")));
+                            orderItem.setPrice(price.multiply(orderItem.getQuantity()));
+
 
                             orderItemRepository.save(orderItem);
 

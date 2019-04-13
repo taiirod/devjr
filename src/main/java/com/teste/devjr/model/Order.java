@@ -14,6 +14,7 @@ import java.util.Objects;
 public class Order {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private int id;
 
@@ -21,8 +22,8 @@ public class Order {
 	private LocalDateTime orderDate;
 
 	@OneToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "order_item", joinColumns = @JoinColumn(name = "id_order"),
-			inverseJoinColumns = @JoinColumn(name ="id"))
+	@JoinTable(name = "order_item", joinColumns = @JoinColumn(name = "id"),
+			inverseJoinColumns = @JoinColumn(name ="id_order"))
 	private List<OrderItem> orderItems;
 
 	public int getId() {
@@ -47,5 +48,18 @@ public class Order {
 
 	public void setOrderItems(List<OrderItem> orderItems) {
 		this.orderItems = orderItems;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Order order = (Order) o;
+		return id == order.id;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
 	}
 }

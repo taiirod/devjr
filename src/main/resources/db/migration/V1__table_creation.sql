@@ -9,22 +9,6 @@ create table devjr.product
     discount           decimal(50)
 );
 
-insert into devjr.product
-    (sku, product_name, quantity_available, industry_price, discount)
-values (32060,
-        'NAN COMFOR 3 FORMULA INFANTIL PO 800G',
-        101,
-        84.18,
-        57);
-
-insert into devjr.product
-    (sku, product_name, quantity_available, industry_price, discount)
-values (31793,
-        'CREATINA HARDCORE POWDER 300G',
-        102,
-        81.03,
-        51);
-
 create table devjr.order
 (
     id         integer primary key auto_increment,
