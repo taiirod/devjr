@@ -12,7 +12,8 @@ public class Files {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String file_name;
+    @Column(name = "fileName")
+    private String fileName;
 
     private int nr;
 
@@ -32,12 +33,12 @@ public class Files {
         this.id = id;
     }
 
-    public String getFile_name() {
-        return file_name;
+    public String getfileName() {
+        return fileName;
     }
 
-    public void setFile_name(String file_name) {
-        this.file_name = file_name;
+    public void setfileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public int getNr() {

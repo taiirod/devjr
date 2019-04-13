@@ -1,21 +1,39 @@
 package com.teste.devjr.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.Objects;
 
 @Entity
 @Table(name = "order_item")
 public class OrderItem {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private String id;
+
+    private int id_order;
+
     private String sku;
 
-    private int quantity;
+    private BigDecimal quantity;
 
     private BigDecimal price;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getId_order() {
+        return id_order;
+    }
+
+    public void setId_order(int id_order) {
+        this.id_order = id_order;
+    }
 
     public String getSku() {
         return sku;
@@ -25,11 +43,11 @@ public class OrderItem {
         this.sku = sku;
     }
 
-    public int getQuantity() {
+    public BigDecimal getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(BigDecimal quantity) {
         this.quantity = quantity;
     }
 
@@ -39,20 +57,5 @@ public class OrderItem {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        OrderItem orderItem = (OrderItem) o;
-        return quantity == orderItem.quantity &&
-                Objects.equals(sku, orderItem.sku) &&
-                Objects.equals(price, orderItem.price);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(sku, quantity, price);
     }
 }

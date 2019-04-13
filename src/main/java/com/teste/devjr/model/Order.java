@@ -5,26 +5,25 @@ import org.hibernate.cache.spi.support.AbstractReadWriteAccess;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "\"order\"")
 public class Order {
-	
+
 	@Id
 	@Column(name = "id")
 	private int id;
-	
+
 	@Column(name = "order_date")
-	private Date orderDate;
-	
+	private LocalDateTime orderDate;
+
 	@OneToMany(fetch = FetchType.EAGER)
-	@JoinColumn(name = "sku")
+	@JoinTable(name = "order_item", joinColumns = @JoinColumn(name = "id_order"),
+			inverseJoinColumns = @JoinColumn(name ="id"))
 	private List<OrderItem> orderItems;
-
-
-	//, joinColumns = @JoinColumn(name = "sku")
 
 	public int getId() {
 		return id;
@@ -34,11 +33,11 @@ public class Order {
 		this.id = id;
 	}
 
-	public Date getOrderDate() {
+	public LocalDateTime getOrderDate() {
 		return orderDate;
 	}
 
-	public void setOrderDate(Date orderDate) {
+	public void setOrderDate(LocalDateTime orderDate) {
 		this.orderDate = orderDate;
 	}
 
@@ -48,20 +47,5 @@ public class Order {
 
 	public void setOrderItems(List<OrderItem> orderItems) {
 		this.orderItems = orderItems;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		Order order = (Order) o;
-		return id == order.id &&
-				Objects.equals(orderDate, order.orderDate) &&
-				Objects.equals(orderItems, order.orderItems);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, orderDate, orderItems);
 	}
 }
