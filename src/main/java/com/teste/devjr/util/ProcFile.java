@@ -130,15 +130,24 @@ public class ProcFile {
                             BigDecimal price = p.getIndustryPrice().subtract(priceCalc.divide(new BigDecimal("100")));
                             orderItem.setPrice(price.multiply(BigDecimal.valueOf(orderItem.getQuantity())));
 
-                            orderItemRepository.saveAndFlush(orderItem);
 
-                            Files processed = filesRepository.findBySkuAndFileName(orderItem.getSku(), f.getfileName());
-                            processed.setStatus("ATENDIDO");
-                            filesRepository.save(processed);
+                            if (orderItem.getPrice() < f.getVl()){
+                                orderItemRepository.saveAndFlush(orderItem);
 
-                            Product prod = productRepository.findBySku(orderItem.getSku());
-                            prod.setQuantityAvailable(prod.getQuantityAvailable() - orderItem.getQuantity());
-                            productRepository.save(prod);
+                                Files processed = filesRepository.findBySkuAndFileName(orderItem.getSku(), f.getfileName());
+                                processed.setStatus("ATENDIDO");
+                                filesRepository.save(processed);
+
+                                Product prod = productRepository.findBySku(orderItem.getSku());
+                                prod.setQuantityAvailable(prod.getQuantityAvailable() - orderItem.getQuantity());
+                                productRepository.save(prod);
+                            } else {
+                                Files processed = filesRepository.findBySkuAndFileName(orderItem.getSku(), f.getfileName());
+                                processed.setStatus("VALOR_ACIMA");
+                                filesRepository.save(processed);
+
+                            }
+
 
 
 
