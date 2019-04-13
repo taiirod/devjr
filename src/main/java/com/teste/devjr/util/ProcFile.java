@@ -49,26 +49,26 @@ public class ProcFile {
     @Autowired
     private OrderItemRepository orderItemRepository;
 
-
     @Scheduled(fixedRate = 30000)
     @PrePersist
     public void process() {
 
         File file = new File("pending");
         File[] files = file.listFiles();
+        String fileName = "";
 
         if (files != null) {
             for (File f : files) {
                 Arrays.sort(files);
 
-                String orderDate = f.getName();
+                fileName = f.getName();
 
                 try {
 
-                    long exists = filesRepository.countAllByFileName(orderDate);
+                    long exists = filesRepository.countAllByFileName(fileName);
 
                     if (exists > 0) {
-                        log.info("Arquivo " + orderDate + " já foi inserido no banco!");
+                        log.info("Arquivo " + fileName + " já foi inserido no banco!");
                     } else {
 
                         BufferedReader br = new BufferedReader(new FileReader(file + "/" + f.getName()));
@@ -83,7 +83,7 @@ public class ProcFile {
                             String status = l[4];
 
                             Files fi = new Files();
-                            fi.setfileName(orderDate);
+                            fi.setfileName(fileName);
                             fi.setNr(Integer.valueOf(nr));
                             fi.setSku(sku);
                             fi.setQt(Integer.valueOf(qt));
@@ -93,77 +93,87 @@ public class ProcFile {
                             filesRepository.save(fi);
 
                         }
-                        log.info("Inserindo arquivo " + orderDate + " no banco!");
+                        log.info("Inserindo arquivo " + fileName + " no banco!");
                     }
+
+                    List<Product> products = productRepository.findAll();
+                    List<Files> filesByFileName = filesRepository.findAllByFileName(fileName);
+                    List<Files> fn = filesRepository.findAll();
+
+                    LocalDateTime now = LocalDateTime.now();
+
+                    Order order = new Order();
+                    order.setOrderDate(now);
+
+                    for (Files byfilename : filesByFileName) {
+                        if (byfilename.getStatus().equals("PENDENTE")) {
+
+
+                            orderRepository.saveAndFlush(order);
+
+                            for (Product p : products) {
+
+
+                                if (p.getSku().equals(byfilename.getSku())) {
+                                    System.out.println(byfilename.toString());
+
+                                    OrderItem orderItem = new OrderItem();
+                                    orderItem.setId_order(order.getId());
+
+                                    orderItem.setSku(p.getSku());
+                                    orderItem.setQuantity(byfilename.getQt());
+                                    BigDecimal priceCalc = p.getIndustryPrice().multiply(p.getDiscount());
+                                    BigDecimal price = p.getIndustryPrice().subtract(priceCalc.divide(new BigDecimal("100")));
+                                    orderItem.setPrice(price.multiply(BigDecimal.valueOf(orderItem.getQuantity())));
+
+                                    orderItemRepository.saveAndFlush(orderItem);
+
+                                    Files processed = filesRepository.findBySkuAndFileName(orderItem.getSku(), byfilename.getfileName());
+                                    processed.setStatus("ATENDIDO");
+                                    filesRepository.save(processed);
+
+                                        /*
+
+                                        int priceIsBigger = price.compareTo(byfilename.getVl());
+
+                                        orderItemRepository.saveAndFlush(orderItem);
+
+                                        Files processed = filesRepository.findBySkuAndFileName(orderItem.getSku(), byfilename.getfileName());
+                                        processed.setStatus("ATENDIDO");
+                                        filesRepository.save(processed);
+
+                                        Product prod = productRepository.findBySku(orderItem.getSku());
+                                        prod.setQuantityAvailable(prod.getQuantityAvailable() - orderItem.getQuantity());
+                                        productRepository.save(prod);*//*
+                                     *//*if (priceIsBigger < 0) {
+                                        } else {
+                                            Files processed = filesRepository.findBySkuAndFileName(orderItem.getSku(), byfilename.getfileName());
+                                            processed.setStatus("VALOR_ACIMA");
+                                            filesRepository.save(processed);
+
+                                        }*//*
+                                    } else {
+                                        Files processed = filesRepository.findBySkuAndFileName(byfilename.getSku(), byfilename.getfileName());
+                                        processed.setStatus("QUANTIDADE_INSUFICIENTE");
+                                        filesRepository.save(processed);
+                                    }
+
+                                } else {
+                                    Files processed = filesRepository.findBySkuAndFileName(byfilename.getSku(), byfilename.getfileName());
+                                    processed.setStatus("NAO_DISPONIVEL");
+                                    filesRepository.save(processed);
+                                }*/
+                                }
+                            }
+                        }
+                    }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
             }
         }
-
-
-        List<Files> fi = filesRepository.findAll();
-        List<Product> products = productRepository.findAll();
-
-        int i = 0;
-        for (Files f : fi) {
-            String fileName = f.getfileName();
-
-            if (f.getStatus().equals("PENDENTE")) {
-                for (Product p : products) {
-                    if (p.getSku().equals(f.getSku())) {
-                        if (p.getQuantityAvailable() > f.getQt()) {
-
-
-                            LocalDateTime now = LocalDateTime.now();
-
-                            Order order = new Order();
-                            order.setOrderDate(now);
-                            orderRepository.saveAndFlush(order);
-
-                            OrderItem orderItem = new OrderItem();
-                            orderItem.setId_order(order.getId());
-                            orderItem.setSku(f.getSku());
-                            orderItem.setQuantity(f.getQt());
-                            BigDecimal priceCalc = p.getIndustryPrice().multiply(p.getDiscount());
-                            BigDecimal price = p.getIndustryPrice().subtract(priceCalc.divide(new BigDecimal("100")));
-                            orderItem.setPrice(price.multiply(BigDecimal.valueOf(orderItem.getQuantity())));
-
-
-                            if (orderItem.getPrice() < f.getVl()){
-                                orderItemRepository.saveAndFlush(orderItem);
-
-                                Files processed = filesRepository.findBySkuAndFileName(orderItem.getSku(), f.getfileName());
-                                processed.setStatus("ATENDIDO");
-                                filesRepository.save(processed);
-
-                                Product prod = productRepository.findBySku(orderItem.getSku());
-                                prod.setQuantityAvailable(prod.getQuantityAvailable() - orderItem.getQuantity());
-                                productRepository.save(prod);
-                            } else {
-                                Files processed = filesRepository.findBySkuAndFileName(orderItem.getSku(), f.getfileName());
-                                processed.setStatus("VALOR_ACIMA");
-                                filesRepository.save(processed);
-
-                            }
-
-
-
-
-
-                        } else {
-                            Files processed = filesRepository.findBySkuAndFileName(f.getSku(), f.getfileName());
-                            processed.setStatus("QUANTIDADE_INSUFICIENTE");
-                            filesRepository.save(processed);
-                            System.out.println("QUANTIDADE INDISPONIVEL");
-                        }
-                    } else {
-
-                    }
-                }
-            }
-        }
     }
-
 }
+
