@@ -15,7 +15,7 @@ public class OrderItem {
 
     private String sku;
 
-    private BigDecimal quantity;
+    private int quantity;
 
     private BigDecimal price;
 
@@ -43,11 +43,11 @@ public class OrderItem {
         this.sku = sku;
     }
 
-    public BigDecimal getQuantity() {
+    public int getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(BigDecimal quantity) {
+    public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
 
