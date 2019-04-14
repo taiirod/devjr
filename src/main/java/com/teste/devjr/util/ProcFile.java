@@ -1,7 +1,5 @@
 package com.teste.devjr.util;
 
-import com.google.gson.JsonObject;
-import com.teste.devjr.controller.FilesController;
 import com.teste.devjr.model.Files;
 import com.teste.devjr.model.Order;
 import com.teste.devjr.model.OrderItem;
@@ -10,25 +8,19 @@ import com.teste.devjr.repository.FilesRepository;
 import com.teste.devjr.repository.OrderItemRepository;
 import com.teste.devjr.repository.OrderRepository;
 import com.teste.devjr.repository.ProductRepository;
-import org.apache.tomcat.jni.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.EntityManager;
 import javax.persistence.PrePersist;
-import javax.persistence.Query;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -96,82 +88,72 @@ public class ProcFile {
                         log.info("Inserindo arquivo " + fileName + " no banco!");
                     }
 
-                    List<Product> products = productRepository.findAll();
-                    List<Files> filesByFileName = filesRepository.findAllByFileName(fileName);
-                    List<Files> fn = filesRepository.findAll();
-
-                    LocalDateTime now = LocalDateTime.now();
-
-                    Order order = new Order();
-                    order.setOrderDate(now);
-
-                    for (Files byfilename : filesByFileName) {
-                        if (byfilename.getStatus().equals("PENDENTE")) {
-
-
-                            orderRepository.saveAndFlush(order);
-
-                            for (Product p : products) {
-
-
-                                if (p.getSku().equals(byfilename.getSku())) {
-                                    System.out.println(byfilename.toString());
-
-                                    OrderItem orderItem = new OrderItem();
-                                    orderItem.setId_order(order.getId());
-
-                                    orderItem.setSku(p.getSku());
-                                    orderItem.setQuantity(byfilename.getQt());
-                                    BigDecimal priceCalc = p.getIndustryPrice().multiply(p.getDiscount());
-                                    BigDecimal price = p.getIndustryPrice().subtract(priceCalc.divide(new BigDecimal("100")));
-                                    orderItem.setPrice(price.multiply(BigDecimal.valueOf(orderItem.getQuantity())));
-
-                                    orderItemRepository.saveAndFlush(orderItem);
-
-                                    Files processed = filesRepository.findBySkuAndFileName(orderItem.getSku(), byfilename.getfileName());
-                                    processed.setStatus("ATENDIDO");
-                                    filesRepository.save(processed);
-
-                                        /*
-
-                                        int priceIsBigger = price.compareTo(byfilename.getVl());
-
-                                        orderItemRepository.saveAndFlush(orderItem);
-
-                                        Files processed = filesRepository.findBySkuAndFileName(orderItem.getSku(), byfilename.getfileName());
-                                        processed.setStatus("ATENDIDO");
-                                        filesRepository.save(processed);
-
-                                        Product prod = productRepository.findBySku(orderItem.getSku());
-                                        prod.setQuantityAvailable(prod.getQuantityAvailable() - orderItem.getQuantity());
-                                        productRepository.save(prod);*//*
-                                     *//*if (priceIsBigger < 0) {
-                                        } else {
-                                            Files processed = filesRepository.findBySkuAndFileName(orderItem.getSku(), byfilename.getfileName());
-                                            processed.setStatus("VALOR_ACIMA");
-                                            filesRepository.save(processed);
-
-                                        }*//*
-                                    } else {
-                                        Files processed = filesRepository.findBySkuAndFileName(byfilename.getSku(), byfilename.getfileName());
-                                        processed.setStatus("QUANTIDADE_INSUFICIENTE");
-                                        filesRepository.save(processed);
-                                    }
-
-                                } else {
-                                    Files processed = filesRepository.findBySkuAndFileName(byfilename.getSku(), byfilename.getfileName());
-                                    processed.setStatus("NAO_DISPONIVEL");
-                                    filesRepository.save(processed);
-                                }*/
-                                }
-                            }
-                        }
-                    }
+                    processOrder(fileName);
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
+            }
+        }
+    }
+
+    private void processOrder(String fileName) {
+        List<Product> products = productRepository.findAll();
+        List<Files> filesByFileName = filesRepository.findAllByFileName(fileName);
+
+        LocalDateTime now = LocalDateTime.now();
+
+        Order order = new Order();
+        order.setOrderDate(now);
+
+        for (Files byFilename : filesByFileName) {
+            if (byFilename.getStatus().equals("PENDENTE")) {
+
+
+                for (Product p : products) {
+                    if (p.getSku().equals(byFilename.getSku())) {
+
+
+                        orderRepository.saveAndFlush(order);
+
+                        OrderItem orderItem = new OrderItem();
+                        orderItem.setId_order(order.getId());
+
+                        orderItem.setSku(p.getSku());
+                        orderItem.setQuantity(byFilename.getQt());
+                        BigDecimal priceCalc = p.getIndustryPrice().multiply(p.getDiscount());
+                        BigDecimal price = p.getIndustryPrice().subtract(priceCalc.divide(new BigDecimal("100")));
+                        orderItem.setPrice(price.multiply(BigDecimal.valueOf(orderItem.getQuantity())));
+
+                        Files setStatus = filesRepository.findBySkuAndFileName(orderItem.getSku(), byFilename.getfileName());
+
+                        int priceCompare =  price.compareTo(byFilename.getVl());
+
+                        if (p.getQuantityAvailable() < orderItem.getQuantity()) {
+                            orderItemRepository.saveAndFlush(orderItem);
+
+                            setStatus.setStatus("QUANTIDADE_INSUFICIENTE");
+                            filesRepository.save(setStatus);
+                        } else if (priceCompare > 0) {
+                            orderItemRepository.saveAndFlush(orderItem);
+
+                            setStatus.setStatus("VALOR_ACIMA");
+                            filesRepository.save(setStatus);
+                        } else {
+                            orderItemRepository.saveAndFlush(orderItem);
+
+                            setStatus.setStatus("ATENDIDO");
+                            filesRepository.save(setStatus);
+                        }
+
+
+
+                        /*Product subtractProd = productRepository.findBySku(orderItem.getSku());
+                        subtractProd.setQuantityAvailable(subtractProd.getQuantityAvailable() - orderItem.getQuantity());*/
+
+                    }
+                }
             }
         }
     }

@@ -38,7 +38,15 @@ public class DownFile {
             String remoteDirPath = "pending";
             String saveDirPath = "";
 
-            DownFile.downloadDirectory(ftpClient, remoteDirPath, "", saveDirPath);
+
+            File file = new File("pending");
+            File[] files = file.listFiles();
+
+            if (files == null) {
+                DownFile.downloadDirectory(ftpClient, remoteDirPath, "", saveDirPath);
+            } else {
+                log.info("Arquivos já baixados.");
+            }
 
             // log out and disconnect from the server
             ftpClient.logout();
@@ -119,7 +127,7 @@ public class DownFile {
                     if (created) {
                         log.info("CREATED the directory: " + newDirPath);
                     } else {
-						log.info("COULD NOT create the directory: " + newDirPath);
+                        log.info("COULD NOT create the directory: " + newDirPath);
                     }
 
                     // download the sub directory
@@ -128,7 +136,7 @@ public class DownFile {
                 } else {
                     // download the file
 
-                    if (files == null){
+                    if (files == null) {
                         boolean success = downloadSingleFile(ftpClient, filePath,
                                 newDirPath);
                         if (success) {
@@ -137,7 +145,7 @@ public class DownFile {
                             log.info("COULD NOT download the file: "
                                     + filePath);
                         }
-                    } else if (!currentFileName.equals(files)){
+                    } else if (!currentFileName.equals(files)) {
                         boolean success = downloadSingleFile(ftpClient, filePath,
                                 newDirPath);
                         if (success) {

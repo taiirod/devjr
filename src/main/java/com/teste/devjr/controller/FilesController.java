@@ -16,12 +16,12 @@ public class FilesController {
 
 
     @GetMapping
-    private List<Files> all () {
+    private List<Files> all() {
         return filesRepository.findAll();
     }
 
     @PostMapping
-    private void add (@RequestBody Files files) {
+    private void add(@RequestBody Files files) {
         filesRepository.save(files);
     }
 

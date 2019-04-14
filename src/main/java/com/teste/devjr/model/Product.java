@@ -10,77 +10,77 @@ import java.util.Objects;
 @Entity
 @Table(name = "product")
 public class Product {
-	
-	@Id
-	@Column(name = "sku")
-	private String sku;
-	
-	@Column(name = "product_name")
-	private String name;
-	
-	@Column(name = "quantity_available")
-	private int quantityAvailable;
-	
-	@Column(name = "industry_price")
-	private BigDecimal industryPrice;
-	
-	@Column(name = "discount")
-	private BigDecimal discount;
 
-	public String getSku() {
-		return sku;
-	}
+    @Id
+    @Column(name = "sku")
+    private String sku;
 
-	public void setSku(String sku) {
-		this.sku = sku;
-	}
+    @Column(name = "product_name")
+    private String name;
 
-	public String getName() {
-		return name;
-	}
+    @Column(name = "quantity_available")
+    private int quantityAvailable;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    @Column(name = "industry_price")
+    private BigDecimal industryPrice;
 
-	public int getQuantityAvailable() {
-		return quantityAvailable;
-	}
+    @Column(name = "discount")
+    private BigDecimal discount;
 
-	public void setQuantityAvailable(int quantityAvailable) {
-		this.quantityAvailable = quantityAvailable;
-	}
+    public String getSku() {
+        return sku;
+    }
 
-	public BigDecimal getIndustryPrice() {
-		return industryPrice;
-	}
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
 
-	public void setIndustryPrice(BigDecimal industryPrice) {
-		this.industryPrice = industryPrice;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public BigDecimal getDiscount() {
-		return discount;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setDiscount(BigDecimal discount) {
-		this.discount = discount;
-	}
+    public int getQuantityAvailable() {
+        return quantityAvailable;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		Product product = (Product) o;
-		return quantityAvailable == product.quantityAvailable &&
-				Objects.equals(sku, product.sku) &&
-				Objects.equals(name, product.name) &&
-				Objects.equals(industryPrice, product.industryPrice) &&
-				Objects.equals(discount, product.discount);
-	}
+    public void setQuantityAvailable(int quantityAvailable) {
+        this.quantityAvailable = quantityAvailable;
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(sku, name, quantityAvailable, industryPrice, discount);
-	}
+    public BigDecimal getIndustryPrice() {
+        return industryPrice;
+    }
+
+    public void setIndustryPrice(BigDecimal industryPrice) {
+        this.industryPrice = industryPrice;
+    }
+
+    public BigDecimal getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(BigDecimal discount) {
+        this.discount = discount;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return quantityAvailable == product.quantityAvailable &&
+                Objects.equals(sku, product.sku) &&
+                Objects.equals(name, product.name) &&
+                Objects.equals(industryPrice, product.industryPrice) &&
+                Objects.equals(discount, product.discount);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sku, name, quantityAvailable, industryPrice, discount);
+    }
 }

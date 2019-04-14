@@ -26,18 +26,6 @@ create table devjr.order_item
 
 );
 
-insert into devjr.order
-    (id, order_date)
-VALUES (1, current_date);
-
-insert into devjr.order_item
-    (id_order, sku, quantity, price)
-values (1, 32060, 15, 423);
-
-insert into devjr.order_item
-(id_order, sku, quantity, price)
-values (1, 31793, 15, 324);
-
 create table devjr.files
 (
     id        integer primary key auto_increment,
