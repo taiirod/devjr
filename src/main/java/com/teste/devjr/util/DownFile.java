@@ -42,7 +42,10 @@ public class DownFile {
             File file = new File("pending");
             File[] files = file.listFiles();
 
-            if (files == null) {
+            FTPFile[] subFiles = ftpClient.listFiles(remoteDirPath);
+
+
+            if (files == null || files.length < subFiles.length) {
                 DownFile.downloadDirectory(ftpClient, remoteDirPath, "", saveDirPath);
             } else {
                 log.info("Arquivos já baixados.");
@@ -96,6 +99,7 @@ public class DownFile {
 
         FTPFile[] subFiles = ftpClient.listFiles(dirToList);
 
+
         File file = new File("pending");
         File[] files = file.listFiles();
 
@@ -136,28 +140,17 @@ public class DownFile {
                 } else {
                     // download the file
 
-                    if (files == null) {
-                        boolean success = downloadSingleFile(ftpClient, filePath,
-                                newDirPath);
-                        if (success) {
-                            log.info("DOWNLOADED the file: " + filePath);
-                        } else {
-                            log.info("COULD NOT download the file: "
-                                    + filePath);
-                        }
-                    } else if (!currentFileName.equals(files)) {
-                        boolean success = downloadSingleFile(ftpClient, filePath,
-                                newDirPath);
-                        if (success) {
-                            log.info("DOWNLOADED the file: " + filePath);
-                        } else {
-                            log.info("COULD NOT download the file: "
-                                    + filePath);
-                        }
+                    boolean success = downloadSingleFile(ftpClient, filePath,
+                            newDirPath);
+                    if (success) {
+                        log.info("DOWNLOADED the file: " + filePath);
+                    } else {
+                        log.info("COULD NOT download the file: "
+                                + filePath);
                     }
                 }
             }
         }
-
     }
+
 }
