@@ -18,6 +18,7 @@ import javax.persistence.PrePersist;
 import java.io.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -99,10 +100,10 @@ public class ProcFile {
         List<Product> products = productRepository.findAll();
         List<Files> filesByFileName = filesRepository.findAllByFileName(fileName);
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime orderDate = getOrderDate(fileName);
 
         Order order = new Order();
-        order.setOrderDate(now);
+        order.setOrderDate(orderDate);
 
         for (Files byFilename : filesByFileName) {
             if (byFilename.getStatus().equals("PENDENTE")) {
@@ -125,7 +126,7 @@ public class ProcFile {
 
                         Files setStatus = filesRepository.findBySkuAndFileName(orderItem.getSku(), byFilename.getfileName());
 
-                        int priceCompare =  price.compareTo(byFilename.getVl());
+                        int priceCompare = price.compareTo(byFilename.getVl());
 
                         if (p.getQuantityAvailable() < orderItem.getQuantity()) {
                             orderItemRepository.saveAndFlush(orderItem);
@@ -145,8 +146,8 @@ public class ProcFile {
                         }
 
 
-                        BufferedWriter writer = new BufferedWriter(new FileWriter(byFilename.getfileName()));
-                        writer.write(filesByFileName.toString());
+                        createFileAndUpload(order, byFilename);
+
 
 
 
@@ -158,6 +159,39 @@ public class ProcFile {
                 }
             }
         }
+    }
+
+    private void createFileAndUpload(Order order, Files byFilename) throws IOException {
+        List<OrderItem> findAllByIdOrder = orderItemRepository.findAllByIdOrder(order.getId());
+
+        boolean processed = new File("processed").mkdirs();
+        BufferedWriter writer = new BufferedWriter(new FileWriter("processed" + "/" + byFilename.getfileName()));
+        for (OrderItem oi : findAllByIdOrder) {
+            writer.write(
+                    oi.getId_order() + "|"
+                            + oi.getSku() + "|"
+                            + oi.getQuantity() + "|"
+                            + oi.getPrice());
+            writer.newLine();
+            writer.flush();
+        }
+    }
+
+    private LocalDateTime getOrderDate(String fileName) {
+        String parseDate = "";
+
+        String year = fileName.substring(2, 6);
+        String month = fileName.substring(6, 8);
+        String day = fileName.substring(8, 10);
+        String hour = fileName.substring(10, 12);
+        String minutes = fileName.substring(12, 14);
+        String seconds = fileName.substring(14, 16);
+
+
+        parseDate = year + "-" + month + "-" + day + " " + hour + ":" + minutes + ":" + seconds;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return LocalDateTime.parse(parseDate, formatter);
     }
 }
 

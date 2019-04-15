@@ -9,9 +9,10 @@ public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private int id;
 
-    private int id_order;
+    @Column(name = "id_order")
+    private int idOrder;
 
     private String sku;
 
@@ -19,20 +20,20 @@ public class OrderItem {
 
     private BigDecimal price;
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
     public int getId_order() {
-        return id_order;
+        return idOrder;
     }
 
-    public void setId_order(int id_order) {
-        this.id_order = id_order;
+    public void setId_order(int idOrder) {
+        this.idOrder = idOrder;
     }
 
     public String getSku() {
