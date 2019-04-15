@@ -162,11 +162,11 @@ public class ProcFile {
     }
 
     private void createFileAndUpload(Order order, Files byFilename) throws IOException {
-        List<OrderItem> findAllByIdOrder = orderItemRepository.findAllByIdOrder(order.getId());
+        List<OrderItem> orderItems = orderItemRepository.findAllByIdOrder(order.getId());
 
         boolean processed = new File("processed").mkdirs();
         BufferedWriter writer = new BufferedWriter(new FileWriter("processed" + "/" + byFilename.getfileName()));
-        for (OrderItem oi : findAllByIdOrder) {
+        for (OrderItem oi : orderItems) {
             writer.write(
                     oi.getId_order() + "|"
                             + oi.getSku() + "|"
