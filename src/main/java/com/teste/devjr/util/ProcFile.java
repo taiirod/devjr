@@ -39,6 +39,9 @@ public class ProcFile {
     @Autowired
     private OrderItemRepository orderItemRepository;
 
+    @Autowired
+    private DownFile downFile;
+
     @Scheduled(fixedRate = 30000)
     @PrePersist
     public void process() {
@@ -58,7 +61,7 @@ public class ProcFile {
                     long exists = filesRepository.countAllByFileName(fileName);
 
                     if (exists > 0) {
-                        log.info("Arquivo " + fileName + " já foi inserido no banco!");
+                        log.info("File " + fileName + " already in database!");
                     } else {
 
                         BufferedReader br = new BufferedReader(new FileReader(file + "/" + f.getName()));
@@ -83,7 +86,7 @@ public class ProcFile {
                             filesRepository.save(fi);
 
                         }
-                        log.info("Inserindo arquivo " + fileName + " no banco!");
+                        log.info("Inserting file " + fileName + " in database.");
                     }
 
                     processOrder(fileName);
@@ -145,16 +148,10 @@ public class ProcFile {
                             filesRepository.save(setStatus);
                         }
 
-
-                        createFileAndUpload(order, byFilename);
-
-
-
-
-
                         /*Product subtractProd = productRepository.findBySku(orderItem.getSku());
                         subtractProd.setQuantityAvailable(subtractProd.getQuantityAvailable() - orderItem.getQuantity());*/
 
+                        createFileAndUpload(order, byFilename);
                     }
                 }
             }
@@ -175,6 +172,7 @@ public class ProcFile {
             writer.newLine();
             writer.flush();
         }
+
     }
 
     private LocalDateTime getOrderDate(String fileName) {

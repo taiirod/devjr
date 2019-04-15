@@ -1,10 +1,12 @@
 package com.teste.devjr.util;
 
+import com.teste.devjr.repository.OrderRepository;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +18,11 @@ public class DownFile {
 
     private static final Logger log = LoggerFactory.getLogger(DownFile.class);
 
+    @Autowired
+    OrderRepository orderRepository;
+
     @Scheduled(fixedRate = 10000)
-    public void download() {
+    public void ftpConnect() {
         String server = "3.86.89.252";
         int port = 21;
         String user = "tainan";
@@ -48,8 +53,21 @@ public class DownFile {
             if (files == null || files.length < subFiles.length) {
                 DownFile.downloadDirectory(ftpClient, remoteDirPath, "", saveDirPath);
             } else {
-                log.info("Arquivos já baixados.");
+                log.info("Files already downloaded.");
             }
+
+            remoteDirPath = "processed";
+            saveDirPath = "";
+
+            File processedFolder = new File("processed");
+            File[] processedFile = processedFolder.listFiles();
+
+            FTPFile[] processedFiles = ftpClient.listFiles(remoteDirPath);
+
+            if (processedFiles == null || processedFiles.length < processedFile.length) {
+                DownFile.uploadProcessedFiles(processedFile, ftpClient);
+            }
+
 
             // log out and disconnect from the server
             ftpClient.logout();
@@ -153,4 +171,20 @@ public class DownFile {
         }
     }
 
+    public static void uploadProcessedFiles(File[] processedFile, FTPClient ftpClient) throws IOException {
+
+
+        for (File f : processedFile) {
+
+            FileInputStream fis = new FileInputStream(f);
+
+            boolean success = ftpClient.storeFile("processed/"+f.getName(), fis);
+
+            if (success) {
+                log.info("Sending file " + f.getName() + " to server.");
+            } else {
+                log.info("Error sending file " + f.getName() + "to server.");
+            }
+        }
+    }
 }
