@@ -146,7 +146,10 @@ public class ProcFile {
 
 
                         BufferedWriter writer = new BufferedWriter(new FileWriter(byFilename.getfileName()));
-                        writer.write(byFilename.toString());
+                        writer.write(filesByFileName.toString());
+
+
+
 
                         /*Product subtractProd = productRepository.findBySku(orderItem.getSku());
                         subtractProd.setQuantityAvailable(subtractProd.getQuantityAvailable() - orderItem.getQuantity());*/
