@@ -15,10 +15,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.PrePersist;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -98,7 +95,7 @@ public class ProcFile {
         }
     }
 
-    private void processOrder(String fileName) {
+    private void processOrder(String fileName) throws IOException {
         List<Product> products = productRepository.findAll();
         List<Files> filesByFileName = filesRepository.findAllByFileName(fileName);
 
@@ -135,7 +132,7 @@ public class ProcFile {
 
                             setStatus.setStatus("QUANTIDADE_INSUFICIENTE");
                             filesRepository.save(setStatus);
-                        } else if (priceCompare > 0) {
+                        } else if (priceCompare < 0) {
                             orderItemRepository.saveAndFlush(orderItem);
 
                             setStatus.setStatus("VALOR_ACIMA");
@@ -148,6 +145,8 @@ public class ProcFile {
                         }
 
 
+                        BufferedWriter writer = new BufferedWriter(new FileWriter(byFilename.getfileName()));
+                        writer.write(byFilename.toString());
 
                         /*Product subtractProd = productRepository.findBySku(orderItem.getSku());
                         subtractProd.setQuantityAvailable(subtractProd.getQuantityAvailable() - orderItem.getQuantity());*/
