@@ -148,6 +148,7 @@ public class ProcFile {
 
                         Product subtractProd = productRepository.findBySku(orderItem.getSku());
                         subtractProd.setQuantityAvailable(subtractProd.getQuantityAvailable() - orderItem.getQuantity());
+                        productRepository.save(subtractProd);
 
                         createFileAndUpload(order, byFilename);
                     }
