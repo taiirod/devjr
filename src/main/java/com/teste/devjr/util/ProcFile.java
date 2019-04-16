@@ -110,11 +110,8 @@ public class ProcFile {
 
         for (Files byFilename : filesByFileName) {
             if (byFilename.getStatus().equals("PENDENTE")) {
-
-
                 for (Product p : products) {
                     if (p.getSku().equals(byFilename.getSku())) {
-
 
                         orderRepository.saveAndFlush(order);
 
@@ -147,6 +144,7 @@ public class ProcFile {
                             setStatus.setStatus("ATENDIDO");
                             filesRepository.save(setStatus);
                         }
+
 
                         Product subtractProd = productRepository.findBySku(orderItem.getSku());
                         subtractProd.setQuantityAvailable(subtractProd.getQuantityAvailable() - orderItem.getQuantity());
