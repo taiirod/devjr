@@ -1,25 +1,21 @@
 package com.teste.devjr.util;
 
-import com.teste.devjr.repository.OrderRepository;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
 
 @Component
-public class DownFile {
+public class DownAndUpFile {
 
 
-    private static final Logger log = LoggerFactory.getLogger(DownFile.class);
+    private static final Logger log = LoggerFactory.getLogger(DownAndUpFile.class);
 
-    @Autowired
-    OrderRepository orderRepository;
 
     @Scheduled(fixedRate = 10000)
     public void ftpConnect() {
@@ -51,7 +47,7 @@ public class DownFile {
 
 
             if (files == null || files.length < subFiles.length) {
-                DownFile.downloadDirectory(ftpClient, remoteDirPath, "", saveDirPath);
+                DownAndUpFile.downloadDirectory(ftpClient, remoteDirPath, "", saveDirPath);
             } else {
                 log.info("Files already downloaded.");
             }
@@ -64,10 +60,10 @@ public class DownFile {
 
             FTPFile[] processedFiles = ftpClient.listFiles(remoteDirPath);
 
+            assert processedFile != null;
             if (processedFiles == null || processedFiles.length < processedFile.length) {
-                DownFile.uploadProcessedFiles(processedFile, ftpClient);
+                DownAndUpFile.uploadProcessedFiles(processedFile, ftpClient);
             }
-
 
             // log out and disconnect from the server
             ftpClient.logout();
@@ -116,7 +112,6 @@ public class DownFile {
         }
 
         FTPFile[] subFiles = ftpClient.listFiles(dirToList);
-
 
         File file = new File("pending");
         File[] files = file.listFiles();
@@ -173,17 +168,16 @@ public class DownFile {
 
     public static void uploadProcessedFiles(File[] processedFile, FTPClient ftpClient) throws IOException {
 
-
         for (File f : processedFile) {
 
             FileInputStream fis = new FileInputStream(f);
 
-            boolean success = ftpClient.storeFile("processed/"+f.getName(), fis);
+            boolean success = ftpClient.storeFile("processed/" + f.getName(), fis);
 
             if (success) {
                 log.info("Sending file " + f.getName() + " to server.");
             } else {
-                log.info("Error sending file " + f.getName() + "to server.");
+                log.info("Error sending file " + f.getName() + " to server.");
             }
         }
     }

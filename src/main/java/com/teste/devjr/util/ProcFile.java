@@ -40,7 +40,7 @@ public class ProcFile {
     private OrderItemRepository orderItemRepository;
 
     @Autowired
-    private DownFile downFile;
+    private DownAndUpFile downAndUpFile;
 
     @Scheduled(fixedRate = 30000)
     @PrePersist
@@ -148,8 +148,8 @@ public class ProcFile {
                             filesRepository.save(setStatus);
                         }
 
-                        /*Product subtractProd = productRepository.findBySku(orderItem.getSku());
-                        subtractProd.setQuantityAvailable(subtractProd.getQuantityAvailable() - orderItem.getQuantity());*/
+                        Product subtractProd = productRepository.findBySku(orderItem.getSku());
+                        subtractProd.setQuantityAvailable(subtractProd.getQuantityAvailable() - orderItem.getQuantity());
 
                         createFileAndUpload(order, byFilename);
                     }
@@ -161,18 +161,21 @@ public class ProcFile {
     private void createFileAndUpload(Order order, Files byFilename) throws IOException {
         List<OrderItem> orderItems = orderItemRepository.findAllByIdOrder(order.getId());
 
+
         boolean processed = new File("processed").mkdirs();
         BufferedWriter writer = new BufferedWriter(new FileWriter("processed" + "/" + byFilename.getfileName()));
         for (OrderItem oi : orderItems) {
+            Files file = filesRepository.findBySkuAndFileName(oi.getSku(), byFilename.getfileName());
+
             writer.write(
                     oi.getId_order() + "|"
                             + oi.getSku() + "|"
                             + oi.getQuantity() + "|"
-                            + oi.getPrice());
+                            + oi.getPrice() + "|"
+                            + file.getStatus());
             writer.newLine();
             writer.flush();
         }
-
     }
 
     private LocalDateTime getOrderDate(String fileName) {
